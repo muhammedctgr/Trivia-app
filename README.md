@@ -1,6 +1,6 @@
 # Trivia App
 
-This project is a full stack development project that also utilizes the CRUD functionalities and connects to the Postgresql database. This project is part of the projects in Udacity Full Stack Nanodegree Program
+This project is a full stack development project. This project is part of the projects in Udacity Full Stack Nanodegree Program
 
 ## Overview
 
