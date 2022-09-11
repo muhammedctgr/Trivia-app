@@ -281,7 +281,7 @@ Fetches questions for a cateogry specified by id request argument
 - Sends a post request in order to get the next question
 - Takes category and previous question parameters
 and returns success value and a random question within the given category, if provided, and that is not one of the previous questions.
-- Sample: `curl -X POST -H "Content-Type: application/json" -d '{"previous_questions": [2, 6], "quiz_category": {"type": "Entertainment", "id": "20"}}' http://127.0.0.1:5000/quizzes`
+- Sample: `curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"previous_questions": [10, 11], "quiz_category": {"type": "Sports", "id": "6"}}' `
 
 ```json
 {
