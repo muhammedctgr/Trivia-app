@@ -3,6 +3,7 @@ from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random
+import json
 
 from models import setup_db, Question, Category
 
@@ -267,44 +268,53 @@ def create_app(test_config=None):
     def activate_quiz():
         
         body = request.get_json()
-        previous = body.get('previous_questions')
-        category = body.get('quiz_category')
+        quiz_category = body.get('quiz_category')['type']
+        previous_questions = body.get('previous_questions')
+        
+        if quiz_category == "" or previous_questions is None:
+            abort(422)
 
-        if ((category is None) or (previous is None)):
-            abort(400)
+        try:
+            if quiz_category == "click":
 
-        if (category['id'] == 0):
-            questions = Question.query.all()
- 
-        else:
-            questions = Question.query.filter_by(category=category['id']).all()
+                questions = Question.query.all()
+                not_prev_selected_questions = [
+                    question for question in questions if question.id not in previous_questions]
 
-        total = len(questions)
+                if not_prev_selected_questions == []:
+                    return jsonify({"question": None})
+                random_index = random.randint(
+                    0, len(not_prev_selected_questions) - 1)
+                random_question = not_prev_selected_questions[random_index].format(
+                )
 
-        def get_random_question():
-            return questions[random.randrange(0, len(questions), 1)]
+                return jsonify({"question": random_question})
 
-        def if_prev_used(question):
-            used = False
-            for i in previous:
-                if (i == question.id):
-                    used = True
-            return used
+            else:
+                cat = Category.query.filter(
+                    Category.type.ilike(
+                        '%' + quiz_category + '%')).all()
+                cat_id = cat[0].id
 
-        question = get_random_question()
+                questions = Question.query.filter(
+                    Question.category == cat_id).all()
 
-        while (if_prev_used(question)):
-            question = get_random_question()
+                not_prev_selected_questions = [
+                    question for question in questions if question.id not in previous_questions]
 
-            if (len(previous) == total):
-                return jsonify({
-                    'success': True
-                })
+                if not_prev_selected_questions == []:
+                    return jsonify({"question": None})
 
-        return jsonify({
-            'success': True,
-            'question': question.format()
-        })
+                random_index = random.randint(
+                    0, len(not_prev_selected_questions) - 1)
+                random_question = not_prev_selected_questions[random_index].format(
+                )
+
+                return jsonify({"question": random_question})
+
+
+        except BaseException:
+            abort(422)
 
 
     """
