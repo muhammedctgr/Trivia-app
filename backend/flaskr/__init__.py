@@ -265,52 +265,52 @@ def create_app(test_config=None):
     """
 
     @app.route("/quizzes", methods=["POST"])
-    def activate_quiz():
+    def start_trivia():
         
         body = request.get_json()
         quiz_category = body.get('quiz_category')['type']
         previous_questions = body.get('previous_questions')
-        
-        if quiz_category == "" or previous_questions is None:
+
+        if quiz_category == None or previous_questions is None:
             abort(422)
 
         try:
-            if quiz_category == "click":
-
-                questions = Question.query.all()
-                not_prev_selected_questions = [
+            if quiz_category == "selected":
+                
+                while_not_selected = [
                     question for question in questions if question.id not in previous_questions]
 
-                if not_prev_selected_questions == []:
+                questions = Question.query.all()
+
+                if while_not_selected == []:
                     return jsonify({"question": None})
-                random_index = random.randint(
-                    0, len(not_prev_selected_questions) - 1)
-                random_question = not_prev_selected_questions[random_index].format(
+                    
+                random_position = random.randint(
+                    0, len(while_not_selected) - 1)
+                next_question = while_not_selected[random_position].format(
                 )
 
-                return jsonify({"question": random_question})
+                return jsonify({"question": next_question})
 
             else:
-                cat = Category.query.filter(
-                    Category.type.ilike(
-                        '%' + quiz_category + '%')).all()
-                cat_id = cat[0].id
+                c = Category.query.filter(Category.type.ilike('%' + quiz_category + '%')).all()
+                cat_id = c[0].id
 
                 questions = Question.query.filter(
                     Question.category == cat_id).all()
 
-                not_prev_selected_questions = [
+                while_not_selected = [
                     question for question in questions if question.id not in previous_questions]
 
-                if not_prev_selected_questions == []:
+                if while_not_selected == []:
                     return jsonify({"question": None})
 
-                random_index = random.randint(
-                    0, len(not_prev_selected_questions) - 1)
-                random_question = not_prev_selected_questions[random_index].format(
+                random_position = random.randint(
+                    0, len(while_not_selected) - 1)
+                next_question = while_not_selected[random_position].format(
                 )
 
-                return jsonify({"question": random_question})
+                return jsonify({"question": next_question})
 
 
         except BaseException:
